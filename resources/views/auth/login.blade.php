@@ -1,0 +1,61 @@
+<x-layouts.app title="Connexion">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-8">
+                <a href="{{ route('home') }}" class="inline-flex items-center gap-2 mb-6">
+                    <span class="text-3xl">💍</span>
+                    <span class="text-2xl font-bold gradient-text">Mariage Planner</span>
+                </a>
+                <h1 class="text-2xl font-bold text-gray-900">Connexion</h1>
+                <p class="text-gray-500 mt-1">Accédez à votre espace organisateur</p>
+            </div>
+
+            <div class="card">
+                {{-- Social login --}}
+                <a href="{{ route('social.redirect', 'google') }}"
+                   class="btn-outline w-full mb-4 flex items-center justify-center gap-3">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#EA4335" d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3C17.782 1.145 15.055 0 12 0 7.27 0 3.198 2.698 1.24 6.65l4.026 3.115Z"/><path fill="#34A853" d="M16.04 18.013c-1.09.703-2.474 1.078-4.04 1.078a7.077 7.077 0 0 1-6.723-4.823l-4.04 3.067A11.965 11.965 0 0 0 12 24c2.933 0 5.735-1.043 7.834-3l-3.793-2.987Z"/><path fill="#4A90E2" d="M19.834 21c2.195-2.048 3.62-5.096 3.62-9 0-.71-.109-1.473-.272-2.182H12v4.637h6.436c-.317 1.559-1.17 2.766-2.395 3.558L19.834 21Z"/><path fill="#FBBC05" d="M5.277 14.268A7.12 7.12 0 0 1 4.909 12c0-.782.125-1.533.357-2.235L1.24 6.65A11.934 11.934 0 0 0 0 12c0 1.92.445 3.73 1.237 5.335l4.04-3.067Z"/></svg>
+                    Continuer avec Google
+                </a>
+
+                <div class="relative my-4">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div>
+                    <div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-400">ou</span></div>
+                </div>
+
+                <form method="POST" action="{{ route('login.store') }}" class="space-y-4">
+                    @csrf
+                    <div>
+                        <label class="label" for="email">Email</label>
+                        <input id="email" name="email" type="email" required autocomplete="email"
+                               value="{{ old('email') }}"
+                               class="input @error('email') border-red-500 @enderror">
+                        @error('email')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label class="label" for="password">Mot de passe</label>
+                        <input id="password" name="password" type="password" required autocomplete="current-password"
+                               class="input @error('password') border-red-500 @enderror">
+                        @error('password')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center gap-2 text-sm text-gray-600">
+                            <input type="checkbox" name="remember" class="rounded border-gray-300 text-violet-600">
+                            Se souvenir de moi
+                        </label>
+                    </div>
+                    <button type="submit" class="btn-primary w-full">Se connecter</button>
+                </form>
+            </div>
+
+            <p class="text-center text-sm text-gray-500 mt-6">
+                Pas encore de compte ?
+                <a href="{{ route('register') }}" class="text-violet-600 font-medium hover:underline">S'inscrire</a>
+            </p>
+        </div>
+    </div>
+</x-layouts.app>

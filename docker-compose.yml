@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: mariage_planner_app
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+      - ./storage:/var/www/html/storage
+    environment:
+      - APP_ENV=${APP_ENV:-local}
+      - APP_DEBUG=${APP_DEBUG:-true}
+    networks:
+      - mariage_network
+    depends_on:
+      - postgres
+      - redis
+
+  nginx:
+    image: nginx:alpine
+    container_name: mariage_planner_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+    networks:
+      - mariage_network
+    depends_on:
+      - app
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: mariage_planner_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-mariage_planner}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mariage_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: mariage_planner_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - mariage_network
+
+  queue:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: mariage_planner_queue
+    restart: unless-stopped
+    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+    volumes:
+      - .:/var/www/html
+    networks:
+      - mariage_network
+    depends_on:
+      - app
+      - redis
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: mariage_planner_mail
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - mariage_network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  mariage_network:
+    driver: bridge
